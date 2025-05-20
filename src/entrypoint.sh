@@ -31,6 +31,7 @@ export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
 trap 'kill ${!}; term_handler' SIGINT SIGKILL SIGTERM SIGQUIT SIGTSTP SIGSTOP SIGHUP
 
 # add input devices and their events to X11 configuration
+mkdir -p /etc/X11/xorg.conf.d/
 if test -f /etc/X11/xorg.conf.d/10-input.conf
 then
    rm /etc/X11/xorg.conf.d/10-input.conf
@@ -55,14 +56,14 @@ EndSection
 _EOF_
 done
 
-#set ALSA sound to HDMI output
-sudo amixer cset numid=3 2     
-sudo amixer cset numid=1 100%
+# #set ALSA sound to HDMI output
+# sudo amixer cset numid=3 2     
+# sudo amixer cset numid=1 100%
 
 # run applications in the background
 
 echo "starting pulseaudio ..."
-sudo pulseaudio --system --high-priority --no-cpu-limit -v -L 'module-alsa-sink device=plughw:0,1' >/dev/null 2>&1 &
+# sudo pulseaudio --system --high-priority --no-cpu-limit -v -L 'module-alsa-sink device=plughw:0,1' >/dev/null 2>&1 &
 
 echo "starting SSH server ..."
 if [ "$SSHPORT" ]; then
@@ -82,15 +83,38 @@ sudo chmod -R 777 /dev/snd
 sudo chmod -R 777 /dev/input
 sudo chmod -R 777 /dev/fb0
 
+# deb1013-pve
+  # https://blog.csdn.net/luowei505050/article/details/130234887
+  # https://forum.proxmox.com/threads/generic-solution-when-install-gets-framebuffer-mode-fails.111577/
+# lspci| grep -i vga 
+if [ "" != "$BUSID" ]; then
+  sudo mkdir -p /usr/share/X11/xorg.conf.d/
+  sudo touch /usr/share/X11/xorg.conf.d/driver-fbdev.conf
+  cat <<EOF |sudo tee /usr/share/X11/xorg.conf.d/driver-fbdev.conf
+Section "Device"
+    Identifier "Card0"
+    Driver "fbdev"
+    BusID "$BUSID"
+EndSection
+EOF
+fi
+
+
 echo "starting X on display 0 ..."
-/usr/bin/startx -- :0 &
+# /usr/bin/startx -- :0 &
+# sudo /usr/bin/startx -- :0 & #TEMP: sudo
+
+# split: Xorg+startxfce4
+sudo Xorg :0 &
+sleep 2; startxfce4 &
+
 sleep 10
 
-echo "starting VNC ..."
-/usr/bin/vncserver-x11 &
+# echo "starting VNC ..."
+# /usr/bin/vncserver-x11 &
 
-echo "starting anydesk ..."
-/usr/bin/anydesk &
+# echo "starting anydesk ..."
+# /usr/bin/anydesk &
 
 # wait forever not to exit the container
 while true
