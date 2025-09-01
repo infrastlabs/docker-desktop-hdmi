@@ -94,27 +94,7 @@ ERROR: failed to solve: error writing manifest blob: failed commit on ref "sha25
 
 #### 4.1) 0520|ap34's--hdmi-ipad4_01
 
-- genMachine--deb1013--未接屏
-
-```bash
-# TODO
-#  未接屏时开机: 新接屏>> genMachine开机后 不能显示上新加屏?? (deb1013, xbt.livecd都一样)
-
-# ERR1
-desktop-1  | sudo: unable to resolve host deb1013: Name or service not known
-# dcp>> hostname: deb1013
-
-# ERR2
-# /dev/fb0
-desktop-1  | sudo: unable to resolve host deb1013: Name or service not known
-desktop-1  | chmod: cannot access '/dev/fb0': No such file or directory
-desktop-1  | starting X on display 0 ...
-desktop-1  | hostname: Name or service not known
-desktop-1  | xauth: (stdin):1:  bad display name "deb1013:0" in "add" command
-
-```
-
-- ap34's--hdmi-ipad4_01
+- ap34's--hdmi-ipad4_01(xorg_root_run)
 
 ```bash
 # Xorg:暂需sudo启;
@@ -125,49 +105,68 @@ desktop-1  | xauth: (stdin):1:  bad display name "deb1013:0" in "add" command
   # 4. 多屏同显: (如上1条); 重启后:依旧只有/dev/fb0(可双显); docker容器外挂entry:重建容器后,开机自动显示双屏~~
 
 # info
-root@ap34:~# ls /dev/fb*
-/dev/fb0
-
-root@ap34:~# cd /dev/
-root@ap34:/dev# ls -lh fb* input snd* tty*
-... #见附
+  root@ap34:~# ls /dev/fb*
+  /dev/fb0
+  root@ap34:~# cd /dev/
+  root@ap34:/dev# ls -lh fb* input snd* tty*
+  ... #见附
 ```
 
-- ap34--non-root(`Xorg+startxfce4`)
+- ap34--non-root(`root.Xorg+nonRoot.startxfce4`)
 
 ```bash
 root@ap34:/# Xorg :0 &
-[1] 71
-root@ap34:/# 
-X.Org X Server 1.20.4
-X Protocol Version 11, Revision 0
-Build Operating System: Linux 6.1.0-20-amd64 x86_64 Debian
-Current Operating System: Linux ap34 4.18.0-0.bpo.1-amd64 #1 SMP Debian 4.18.6-1~bpo9+1 (2018-09-13) x86_64
-Kernel command line: root=/dev/mmcblk1p1 ro quiet
-Build Date: 15 April 2024  11:30:14AM
-xorg-server 2:1.20.4-1+deb10u14 (https://www.debian.org/support) 
-Current version of pixman: 0.36.0
-	Before reporting problems, check http://wiki.x.org
-	to make sure that you have the latest version.
-Markers: (--) probed, (**) from config file, (==) default setting,
-	(++) from command line, (!!) notice, (II) informational,
-	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
-(==) Log file: "/var/log/Xorg.0.log", Time: Sun May 25 12:11:32 2025
-(==) Using config directory: "/etc/X11/xorg.conf.d"
-(==) Using system config directory "/usr/share/X11/xorg.conf.d"
-(II) modeset(0): Initializing kms color map for depth 24, 8 bpc.
+  [1] 71
+  root@ap34:/# 
+  X.Org X Server 1.20.4
+  X Protocol Version 11, Revision 0
+  Build Operating System: Linux 6.1.0-20-amd64 x86_64 Debian
+  Current Operating System: Linux ap34 4.18.0-0.bpo.1-amd64 #1 SMP Debian 4.18.6-1~bpo9+1 (2018-09-13) x86_64
+  Kernel command line: root=/dev/mmcblk1p1 ro quiet
+  Build Date: 15 April 2024  11:30:14AM
+  xorg-server 2:1.20.4-1+deb10u14 (https://www.debian.org/support) 
+  Current version of pixman: 0.36.0
+    Before reporting problems, check http://wiki.x.org
+    to make sure that you have the latest version.
+  Markers: (--) probed, (**) from config file, (==) default setting,
+    (++) from command line, (!!) notice, (II) informational,
+    (WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+  (==) Log file: "/var/log/Xorg.0.log", Time: Sun May 25 12:11:32 2025
+  (==) Using config directory: "/etc/X11/xorg.conf.d"
+  (==) Using system config directory "/usr/share/X11/xorg.conf.d"
+  (II) modeset(0): Initializing kms color map for depth 24, 8 bpc.
 
 
 root@ap34:/# su - testuser
-testuser@ap34:~$ export DISPLAY=:0.0
-testuser@ap34:~$ xfce4-terminal
-testuser@ap34:~$ startxfce4 
-/usr/bin/startxfce4: X server already running on display :0.0
+  testuser@ap34:~$ export DISPLAY=:0.0
+  testuser@ap34:~$ xfce4-terminal
+  testuser@ap34:~$ startxfce4 
+  /usr/bin/startxfce4: X server already running on display :0.0
 
 ```
 
 
 #### 4.2) 0521|genMachine--deb1013--ipad4
+
+- 0520|genMachine--deb1013--未接屏
+
+```bash
+# TODO
+  # 未接屏时开机: 新接屏>> genMachine开机后 不能显示上新加屏?? (deb1013, xbt.livecd都一样)
+
+# ERR1
+  desktop-1  | sudo: unable to resolve host deb1013: Name or service not known
+  # dcp>> hostname: deb1013
+
+# ERR2
+  # /dev/fb0
+  desktop-1  | sudo: unable to resolve host deb1013: Name or service not known
+  desktop-1  | chmod: cannot access '/dev/fb0': No such file or directory
+  desktop-1  | starting X on display 0 ...
+  desktop-1  | hostname: Name or service not known
+  desktop-1  | xauth: (stdin):1:  bad display name "deb1013:0" in "add" command
+
+```
 
 - genMachine--deb1013--ipad4
 
@@ -193,22 +192,22 @@ Fatal server error:
 # TRY01.DRIVER
 root @ deb1013 in ~ |11:48:14  
 # $ apt install xorg  
-Need to get 32.5 MB of archives.
-After this operation, 54.5 MB of additional disk space will be used.
+  Need to get 32.5 MB of archives.
+  After this operation, 54.5 MB of additional disk space will be used.
 
 # $ apt install xserver-xorg-video-all
-Need to get 18.5 MB of archives.
-After this operation, 31.4 MB of additional disk space will be used.
+  Need to get 18.5 MB of archives.
+  After this operation, 31.4 MB of additional disk space will be used.
 
 # apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
-# $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
-Need to get 13.9 MB of archives.
-After this operation, 21.7 MB of additional disk space will be used.
+  # $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
+  Need to get 13.9 MB of archives.
+  After this operation, 21.7 MB of additional disk space will be used.
 
-# --no-install-recommends: 13.9 MB> 7373 kB
-# $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev --no-install-recommends
-Need to get 7373 kB of archives.
-After this operation, 13.3 MB of additional disk space will be used.
+  # --no-install-recommends: 13.9 MB> 7373 kB
+  # $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev --no-install-recommends
+  Need to get 7373 kB of archives.
+  After this operation, 13.3 MB of additional disk space will be used.
 
 
 # cmds
@@ -398,113 +397,33 @@ headless @ deb1013 in ~ |01:58:27
 - ap34-dev-detail
 
 ```bash
-root@ap34:~# cd /dev/
-root@ap34:/dev# ls -lh fb* input snd* tty*
+# root@ap34:~# cd /dev/; ls -lh fb* input snd* tty*
 crw-rw---- 1 root video   29,  0 May 20 20:38 fb0
 crw-rw-rw- 1 root tty      5,  0 May 20 20:38 tty
 crw--w---- 1 root tty      4,  0 May 20 20:38 tty0
 crw--w---- 1 root tty      4,  1 May 20 20:39 tty1
-crw--w---- 1 root tty      4, 10 May 20 20:38 tty10
-crw--w---- 1 root tty      4, 11 May 20 20:38 tty11
-crw--w---- 1 root tty      4, 12 May 20 20:38 tty12
-crw--w---- 1 root tty      4, 13 May 20 20:38 tty13
-crw--w---- 1 root tty      4, 14 May 20 20:38 tty14
-crw--w---- 1 root tty      4, 15 May 20 20:38 tty15
-crw--w---- 1 root tty      4, 16 May 20 20:38 tty16
-crw--w---- 1 root tty      4, 17 May 20 20:38 tty17
-crw--w---- 1 root tty      4, 18 May 20 20:38 tty18
-crw--w---- 1 root tty      4, 19 May 20 20:38 tty19
-crw--w---- 1 root tty      4,  2 May 20 20:38 tty2
-crw--w---- 1 root tty      4, 20 May 20 20:38 tty20
-crw--w---- 1 root tty      4, 21 May 20 20:38 tty21
-crw--w---- 1 root tty      4, 22 May 20 20:38 tty22
-crw--w---- 1 root tty      4, 23 May 20 20:38 tty23
-crw--w---- 1 root tty      4, 24 May 20 20:38 tty24
-crw--w---- 1 root tty      4, 25 May 20 20:38 tty25
-crw--w---- 1 root tty      4, 26 May 20 20:38 tty26
-crw--w---- 1 root tty      4, 27 May 20 20:38 tty27
-crw--w---- 1 root tty      4, 28 May 20 20:38 tty28
-crw--w---- 1 root tty      4, 29 May 20 20:38 tty29
-crw--w---- 1 root tty      4,  3 May 20 20:38 tty3
-crw--w---- 1 root tty      4, 30 May 20 20:38 tty30
-crw--w---- 1 root tty      4, 31 May 20 20:38 tty31
-crw--w---- 1 root tty      4, 32 May 20 20:38 tty32
-crw--w---- 1 root tty      4, 33 May 20 20:38 tty33
-crw--w---- 1 root tty      4, 34 May 20 20:38 tty34
-crw--w---- 1 root tty      4, 35 May 20 20:38 tty35
-crw--w---- 1 root tty      4, 36 May 20 20:38 tty36
-crw--w---- 1 root tty      4, 37 May 20 20:38 tty37
-crw--w---- 1 root tty      4, 38 May 20 20:38 tty38
-crw--w---- 1 root tty      4, 39 May 20 20:38 tty39
-crw--w---- 1 root tty      4,  4 May 20 20:38 tty4
-crw--w---- 1 root tty      4, 40 May 20 20:38 tty40
-crw--w---- 1 root tty      4, 41 May 20 20:38 tty41
-crw--w---- 1 root tty      4, 42 May 20 20:38 tty42
-crw--w---- 1 root tty      4, 43 May 20 20:38 tty43
-crw--w---- 1 root tty      4, 44 May 20 20:38 tty44
-crw--w---- 1 root tty      4, 45 May 20 20:38 tty45
-crw--w---- 1 root tty      4, 46 May 20 20:38 tty46
-crw--w---- 1 root tty      4, 47 May 20 20:38 tty47
-crw--w---- 1 root tty      4, 48 May 20 20:38 tty48
-crw--w---- 1 root tty      4, 49 May 20 20:38 tty49
-crw--w---- 1 root tty      4,  5 May 20 20:38 tty5
-crw--w---- 1 root tty      4, 50 May 20 20:38 tty50
-crw--w---- 1 root tty      4, 51 May 20 20:38 tty51
-crw--w---- 1 root tty      4, 52 May 20 20:38 tty52
-crw--w---- 1 root tty      4, 53 May 20 20:38 tty53
-crw--w---- 1 root tty      4, 54 May 20 20:38 tty54
-crw--w---- 1 root tty      4, 55 May 20 20:38 tty55
-crw--w---- 1 root tty      4, 56 May 20 20:38 tty56
-crw--w---- 1 root tty      4, 57 May 20 20:38 tty57
-crw--w---- 1 root tty      4, 58 May 20 20:38 tty58
-crw--w---- 1 root tty      4, 59 May 20 20:38 tty59
-crw--w---- 1 root tty      4,  6 May 20 20:38 tty6
-crw--w---- 1 root tty      4, 60 May 20 20:38 tty60
-crw--w---- 1 root tty      4, 61 May 20 20:38 tty61
-crw--w---- 1 root tty      4, 62 May 20 20:38 tty62
-crw--w---- 1 root tty      4, 63 May 20 20:38 tty63
-crw--w---- 1 root tty      4,  7 May 20 20:38 tty7
-crw--w---- 1 root tty      4,  8 May 20 20:38 tty8
-crw--w---- 1 root tty      4,  9 May 20 20:38 tty9
-crw-rw---- 1 root dialout  4, 64 May 20 20:38 ttyS0
-crw-rw---- 1 root dialout  4, 65 May 20 20:38 ttyS1
-crw-rw---- 1 root dialout  4, 66 May 20 20:38 ttyS2
+..
 crw-rw---- 1 root dialout  4, 67 May 20 20:38 ttyS3
 
-input:
+# input:
 total 0
 drwxr-xr-x 2 root root     120 May 20 20:38 by-id
 drwxr-xr-x 2 root root     140 May 20 20:38 by-path
 crw-rw---- 1 root input 13, 64 May 20 20:38 event0
 crw-rw---- 1 root input 13, 65 May 20 20:38 event1
-crw-rw---- 1 root input 13, 74 May 20 20:38 event10
-crw-rw---- 1 root input 13, 75 May 20 20:38 event11
-crw-rw---- 1 root input 13, 76 May 20 20:38 event12
-crw-rw---- 1 root input 13, 77 May 20 20:38 event13
-crw-rw---- 1 root input 13, 78 May 20 20:38 event14
-crw-rw---- 1 root input 13, 66 May 20 20:38 event2
-crw-rw---- 1 root input 13, 67 May 20 20:38 event3
-crw-rw---- 1 root input 13, 68 May 20 20:38 event4
-crw-rw---- 1 root input 13, 69 May 20 20:38 event5
-crw-rw---- 1 root input 13, 70 May 20 20:38 event6
-crw-rw---- 1 root input 13, 71 May 20 20:38 event7
-crw-rw---- 1 root input 13, 72 May 20 20:38 event8
+..
 crw-rw---- 1 root input 13, 73 May 20 20:38 event9
 crw-rw---- 1 root input 13, 63 May 20 20:38 mice
 crw-rw---- 1 root input 13, 32 May 20 20:38 mouse0
 
-snd:
+# snd:
 total 0
 drwxr-xr-x 2 root root       60 May 20 20:38 by-path
 crw-rw---- 1 root audio 116, 11 May 20 20:38 controlC0
 crw-rw---- 1 root audio 116,  9 May 20 20:38 hwC0D0
 crw-rw---- 1 root audio 116, 10 May 20 20:38 hwC0D2
 crw-rw---- 1 root audio 116,  3 May 20 20:38 pcmC0D0c
-crw-rw---- 1 root audio 116,  2 May 20 20:38 pcmC0D0p
-crw-rw---- 1 root audio 116,  8 May 20 20:38 pcmC0D10p
-crw-rw---- 1 root audio 116,  4 May 20 20:38 pcmC0D3p
-crw-rw---- 1 root audio 116,  5 May 20 20:38 pcmC0D7p
-crw-rw---- 1 root audio 116,  6 May 20 20:38 pcmC0D8p
+..
 crw-rw---- 1 root audio 116,  7 May 20 20:38 pcmC0D9p
 crw-rw---- 1 root audio 116,  1 May 20 20:38 seq
 crw-rw---- 1 root audio 116, 33 May 20 20:38 timer
@@ -515,82 +434,38 @@ crw-rw---- 1 root audio 116, 33 May 20 20:38 timer
 ```bash
 root @ deb1013 in ~ |11:48:14  
 # $ apt install xorg  
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-The following additional packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libevdev2 libfontenc1 libgbm1 libglu1-mesa libinput-bin libinput10 libmtdev1 libpipeline1 libwacom-bin libwacom-common libwacom2 libwayland-client0 libwayland-server0
-  libxatracker2 libxaw7 libxcb-shape0 libxcb-util0 libxcomposite1 libxcursor1 libxfont2 libxft2 libxinerama1 libxkbfile1 libxmu6 libxpm4 libxrandr2 libxss1 libxt6 libxvmc1 libxxf86dga1 man-db x11-apps x11-session-utils
-  x11-utils x11-xkb-utils x11-xserver-utils xbitmaps xfonts-100dpi xfonts-75dpi xfonts-base xfonts-encodings xfonts-scalable xfonts-utils xinit xorg-docs-core xserver-common xserver-xorg xserver-xorg-core
-  xserver-xorg-input-all xserver-xorg-input-libinput xserver-xorg-input-wacom xserver-xorg-legacy xserver-xorg-video-all xserver-xorg-video-amdgpu xserver-xorg-video-ati xserver-xorg-video-fbdev xserver-xorg-video-intel
-  xserver-xorg-video-nouveau xserver-xorg-video-qxl xserver-xorg-video-radeon xserver-xorg-video-vesa xserver-xorg-video-vmware xterm
-Suggested packages:
-  groff www-browser mesa-utils nickle cairo-5c xorg-docs x11-xfs-utils xinput firmware-amd-graphics xserver-xorg-video-r128 xserver-xorg-video-mach64 firmware-misc-nonfree xfonts-cyrillic
-The following NEW packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libevdev2 libfontenc1 libgbm1 libglu1-mesa libinput-bin libinput10 libmtdev1 libpipeline1 libwacom-bin libwacom-common libwacom2 libwayland-client0 libwayland-server0
-  libxatracker2 libxaw7 libxcb-shape0 libxcb-util0 libxcomposite1 libxcursor1 libxfont2 libxft2 libxinerama1 libxkbfile1 libxmu6 libxpm4 libxrandr2 libxss1 libxt6 libxvmc1 libxxf86dga1 man-db x11-apps x11-session-utils
-  x11-utils x11-xkb-utils x11-xserver-utils xbitmaps xfonts-100dpi xfonts-75dpi xfonts-base xfonts-encodings xfonts-scalable xfonts-utils xinit xorg xorg-docs-core xserver-common xserver-xorg xserver-xorg-core
-  xserver-xorg-input-all xserver-xorg-input-libinput xserver-xorg-input-wacom xserver-xorg-legacy xserver-xorg-video-all xserver-xorg-video-amdgpu xserver-xorg-video-ati xserver-xorg-video-fbdev xserver-xorg-video-intel
-  xserver-xorg-video-nouveau xserver-xorg-video-qxl xserver-xorg-video-radeon xserver-xorg-video-vesa xserver-xorg-video-vmware xterm
-0 upgraded, 68 newly installed, 0 to remove and 123 not upgraded.
-Need to get 32.5 MB of archives.
-After this operation, 54.5 MB of additional disk space will be used.
-Do you want to continue? [Y/n] 
+  The following NEW packages will be installed:
+    libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libevdev2 libfontenc1 libgbm1 libglu1-mesa libinput-bin libinput10 libmtdev1 libpipeline1 libwacom-bin libwacom-common libwacom2 libwayland-client0 libwayland-server0
+    libxatracker2 libxaw7 libxcb-shape0 libxcb-util0 libxcomposite1 libxcursor1 libxfont2 libxft2 libxinerama1 libxkbfile1 libxmu6 libxpm4 libxrandr2 libxss1 libxt6 libxvmc1 libxxf86dga1 man-db x11-apps x11-session-utils
+    x11-utils x11-xkb-utils x11-xserver-utils xbitmaps xfonts-100dpi xfonts-75dpi xfonts-base xfonts-encodings xfonts-scalable xfonts-utils xinit xorg xorg-docs-core xserver-common xserver-xorg xserver-xorg-core
+    xserver-xorg-input-all xserver-xorg-input-libinput xserver-xorg-input-wacom xserver-xorg-legacy xserver-xorg-video-all xserver-xorg-video-amdgpu xserver-xorg-video-ati xserver-xorg-video-fbdev xserver-xorg-video-intel
+    xserver-xorg-video-nouveau xserver-xorg-video-qxl xserver-xorg-video-radeon xserver-xorg-video-vesa xserver-xorg-video-vmware xterm
+  0 upgraded, 68 newly installed, 0 to remove and 123 not upgraded.
+  Need to get 32.5 MB of archives.
 
 # $ apt install xserver-xorg-video-all
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-The following additional packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxatracker2 libxaw7 libxcb-util0 libxcursor1 libxfont2 libxinerama1 libxkbfile1 libxmu6 libxpm4 libxrandr2 libxss1
-  libxt6 libxvmc1 x11-xkb-utils xfonts-base xfonts-encodings xfonts-utils xserver-common xserver-xorg-core xserver-xorg-video-amdgpu xserver-xorg-video-ati xserver-xorg-video-fbdev xserver-xorg-video-intel
-  xserver-xorg-video-nouveau xserver-xorg-video-qxl xserver-xorg-video-radeon xserver-xorg-video-vesa xserver-xorg-video-vmware
-Suggested packages:
-  xfs | xserver xfonts-100dpi | xfonts-75dpi xfonts-scalable firmware-amd-graphics xserver-xorg-video-r128 xserver-xorg-video-mach64 firmware-misc-nonfree
-The following NEW packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxatracker2 libxaw7 libxcb-util0 libxcursor1 libxfont2 libxinerama1 libxkbfile1 libxmu6 libxpm4 libxrandr2 libxss1
-  libxt6 libxvmc1 x11-xkb-utils xfonts-base xfonts-encodings xfonts-utils xserver-common xserver-xorg-core xserver-xorg-video-all xserver-xorg-video-amdgpu xserver-xorg-video-ati xserver-xorg-video-fbdev
-  xserver-xorg-video-intel xserver-xorg-video-nouveau xserver-xorg-video-qxl xserver-xorg-video-radeon xserver-xorg-video-vesa xserver-xorg-video-vmware
-0 upgraded, 37 newly installed, 0 to remove and 123 not upgraded.
-Need to get 18.5 MB of archives.
-After this operation, 31.4 MB of additional disk space will be used.
-Do you want to continue? [Y/n] 
+  The following NEW packages will be installed:
+    libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxatracker2 libxaw7 libxcb-util0 libxcursor1 libxfont2 libxinerama1 libxkbfile1 libxmu6 libxpm4 libxrandr2 libxss1
+    libxt6 libxvmc1 x11-xkb-utils xfonts-base xfonts-encodings xfonts-utils xserver-common xserver-xorg-core xserver-xorg-video-all xserver-xorg-video-amdgpu xserver-xorg-video-ati xserver-xorg-video-fbdev
+    xserver-xorg-video-intel xserver-xorg-video-nouveau xserver-xorg-video-qxl xserver-xorg-video-radeon xserver-xorg-video-vesa xserver-xorg-video-vmware
+  0 upgraded, 37 newly installed, 0 to remove and 123 not upgraded.
+  Need to get 18.5 MB of archives.
 
 
 # apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
-# $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-The following additional packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxaw7 libxfont2 libxkbfile1 libxmu6 libxpm4 libxt6 x11-xkb-utils xfonts-base xfonts-encodings xfonts-utils
-  xserver-common xserver-xorg-core
-Suggested packages:
-  xfs | xserver xfonts-100dpi | xfonts-75dpi xfonts-scalable firmware-amd-graphics
-The following NEW packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxaw7 libxfont2 libxkbfile1 libxmu6 libxpm4 libxt6 x11-xkb-utils xfonts-base xfonts-encodings xfonts-utils
-  xserver-common xserver-xorg-core xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
-0 upgraded, 22 newly installed, 0 to remove and 123 not upgraded.
-Need to get 13.9 MB of archives.
-After this operation, 21.7 MB of additional disk space will be used.
+  # $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
+  The following NEW packages will be installed:
+    libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxaw7 libxfont2 libxkbfile1 libxmu6 libxpm4 libxt6 x11-xkb-utils xfonts-base xfonts-encodings xfonts-utils
+    xserver-common xserver-xorg-core xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
+  0 upgraded, 22 newly installed, 0 to remove and 123 not upgraded.
+  Need to get 13.9 MB of archives.
 
-# --no-install-recommends: 13.9 MB> 7373 kB
-# $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev --no-install-recommends
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-The following additional packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxaw7 libxfont2 libxkbfile1 libxmu6 libxpm4 libxt6 x11-xkb-utils xserver-common xserver-xorg-core
-Suggested packages:
-  xfonts-100dpi | xfonts-75dpi xfonts-scalable firmware-amd-graphics
-Recommended packages:
-  xfonts-base
-The following NEW packages will be installed:
-  libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxaw7 libxfont2 libxkbfile1 libxmu6 libxpm4 libxt6 x11-xkb-utils xserver-common xserver-xorg-core
-  xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
-0 upgraded, 19 newly installed, 0 to remove and 123 not upgraded.
-Need to get 7373 kB of archives.
-After this operation, 13.3 MB of additional disk space will be used.
-Do you want to continue? [Y/n] 
+  # --no-install-recommends: 13.9 MB> 7373 kB
+  # $ apt install xserver-xorg-video-amdgpu xserver-xorg-video-fbdev --no-install-recommends
+  The following NEW packages will be installed:
+    libegl-mesa0 libegl1 libegl1-mesa libepoxy0 libfontenc1 libgbm1 libwayland-client0 libwayland-server0 libxaw7 libxfont2 libxkbfile1 libxmu6 libxpm4 libxt6 x11-xkb-utils xserver-common xserver-xorg-core
+    xserver-xorg-video-amdgpu xserver-xorg-video-fbdev
+  0 upgraded, 19 newly installed, 0 to remove and 123 not upgraded.
+  Need to get 7373 kB of archives.
 
 ```
