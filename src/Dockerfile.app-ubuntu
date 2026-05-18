@@ -14,9 +14,18 @@ RUN \
   # sox: play xx.mp3; alsa: aplay -l
   lame sox libsox-fmt-mp3 
 
-RUN \
 # lame sox libsox-fmt-mp3
+RUN \
+  # chvt@kbd
   apt.sh beep dbus-x11 \
+  # 260519:add; pactl load-module module-alsa-sink device=plughw:0,3 [plughw:0,0]
+  alsa-ucm-conf kbd \
+  # 260519:add
+  less bash-completion tumbler \
+  # for: weipai-s11's touchpad; evtest /dev/input/event7 操作touch板即有反应
+  xinput evtest \
+  xserver-xorg-input-libinput xserver-xorg-input-synaptics \
+  network-manager xfce4-power-manager \
   # alsa-oss alsa-tools-gui alsamixergui \
   alsa-tools alsa-utils mpg123 ; \
   echo "curl mp3.." && su - headless -c "curl --connect-timeout 3 -k -O -fSL https://downsc.chinaz.net/files/download/sound1/201309/3476.mp3";
