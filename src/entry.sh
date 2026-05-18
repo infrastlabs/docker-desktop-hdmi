@@ -95,23 +95,38 @@ sudo bash /usr/local/bin/input.sh
 
 test -f /.env && source /.env; #setEnv
 #set environment variables
-export DISPLAY=:0.0
+# export DISPLAY=:0.0
 # export XAUTHORITY=~/.Xauthority
-export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
 
 # run applications in the background
 echo "starting X on display 0 ..."
 # /usr/bin/startx -- :0 &
 # split: Xorg+startxfce4
 test -z "$START_SESSION" && export START_SESSION=startfluxbox
-sudo Xorg :0 &
+test -z "$DISPLAY" && export DISPLAY=:1
+dispNum=${DISPLAY#*:}; dispNum=${dispNum%.*}
+sudo rm -f /tmp/.X${dispNum}-lock
+#sudo Xorg $DISPLAY vt8 -novtswitch &
+sudo Xorg $DISPLAY vt$(($dispNum+7)) &
 sleep 2; $START_SESSION > /dev/null 2>&1 &
+
+# if before Xorg, will fail?
+echo "starting dbus ..."
+sudo mkdir -p /var/run/dbus/
+export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
+sudo dbus-daemon --system --nofork &
+sleep 2
+xfce4-power-manager &
+NetworkManager &
 
 echo "starting pulseaudio ..."
 # sudo pulseaudio --system --high-priority --no-cpu-limit -v -L 'module-alsa-sink device=plughw:0,1' >/dev/null 2>&1 &
+
+sudo sed -i "s/^load-module module-console-kit/#load-module module-console-kit/g" /etc/pulse/default.pa #for: core-debian-9
+sudo rm -rf /tmp/pulse-*
 pulseaudio &
 sleep 2; pavucontrol > /dev/null 2>&1 &
-pactl load-module module-alsa-sink device=plughw:0,3
+pactl load-module module-alsa-sink device=plughw:0,0
 
 # wait forever not to exit the container
 tail -f /dev/null #& wait ${!}
