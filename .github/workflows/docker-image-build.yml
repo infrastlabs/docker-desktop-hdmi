@@ -75,7 +75,7 @@ jobs:
           #   bash buildx.sh rootfs
           #   # exit 0
           # 
-          bash buildx.sh hdmi
+          # bash buildx.sh hdmi
           bash buildx.sh x11base-all
 
           # view timecost
