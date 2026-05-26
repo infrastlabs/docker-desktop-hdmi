@@ -6,8 +6,9 @@ services:
     # image: registry.cn-shenzhen.aliyuncs.com/infrastlabs/docker-hdmi-desktop:latest
     #x11-base:core-debian-8 => Xorg :1 #err: no screen found
     # image: registry.cn-shenzhen.aliyuncs.com/infrastlabs/x11-base:app-ubuntu-20.04
-    image: registry.cn-shenzhen.aliyuncs.com/infrastlabs/docker-hdmi-desktop:app-ubuntu-20.04 #24.04>22.04>20.04
-    entrypoint: bash /entry.sh
+    image: registry.cn-shenzhen.aliyuncs.com/infrastlabs/docker-hdmi-desktop:${ENV_TAG:-app-ubuntu-20.04} #9>12 #24.04>22.04>20.04
+    entrypoint: bash /entry-x11base.sh
+    # entrypoint: bash /entrypoint2.sh
     # entrypoint: bash -c
     # command: "\"echo wait...; tail -f /dev/null;\"" 
     # hostname: deb1013
@@ -27,14 +28,17 @@ services:
     volumes: 
       - ./src/bin/:/usr/local/bin/
       - ./src/entrypoint.sh:/entrypoint.sh
-      - ./src/entry.sh:/entry.sh
+      - ./src/entrypoint2.sh:/entrypoint2.sh
+      - ./src/entry-x11base.sh:/entry-x11base.sh
+      - ./src/xvnc2.sh:/xvnc2.sh
       - /_ext:/_ext
       # - /opt:/opt
     environment:
-      - "SSHPORT=22"
+      # - "SSHPORT=22" #/src/entrypoint.sh
       # - "BUSID=pci0:04:0:0:"
-      - "DISPLAY=:1"
-      - VNC_OFFSET=40
-      - START_SESSION=${DESK:-openbox-session}
+      # 
+      - DISPLAY=${ENV_DISPLAY:-:1} #加ENV_,免优先取了环境变量而非.env内配置
+      # - VNC_OFFSET=51
+      - START_SESSION=${ENV_DESK:-openbox-session}
       - L=zh_CN
       - TZ=Asia/Shanghai
