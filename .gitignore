@@ -1,0 +1,11 @@
+.settings
+*.classpath
+*.project
+*.iml
+.idea
+.vscode
+
+*.vswp
+#*.docx
+# ./src/bin=> /usr/local/bin
+/src/bin/opencode
