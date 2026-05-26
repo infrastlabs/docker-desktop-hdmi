@@ -144,6 +144,15 @@ Section "InputDevice"
     Driver "evdev"
 EndSection
 
+##00-keyboard.conf #dseek.for_xfce4_session=>none.effect || setxkbmap@opbox/autostart
+# Section "InputClass"
+#     Identifier "Keyboard Defaults"
+#     MatchIsKeyboard "on"
+#     Option "XkbRules" "evdev"
+#     Option "XkbModel" "pc105"
+#     Option "XkbLayout" "us"
+# EndSection
+
 #################################
 # 260520 11:40|ref deb9-bunsen//usr/share/X11/xorg.conf.d/; event0/event7单独调试=>touchOK
 #   0.tty7-lightdm-bunsen桌面: 不用停,event0/7可在两边切换;
@@ -159,7 +168,7 @@ Section "InputDevice"
         Identifier "touch event7-12"
         # MatchIsTablet "on"
         # MatchDevicePath "/dev/input/event7"
-        Option "Device" "/dev/input/event12"
+        Option "Device" "/dev/input/event7"
         # TODO: udev未挂到容器内.
         # Option "Device" "/dev/input/by-path/pci-0000:00:16.2-platform-i2c_designware.2-event-mouse"
         # 
@@ -182,6 +191,15 @@ EndSection
 #         # Driver "libinput"
 #         Driver "evdev"
 #         # Driver "synaptics"
+# EndSection
+
+
+# 260529:weipai-s11--intel.i915(xserver-xorg-video-intel, all内不含)==>TODO.xorg不配置时,可自动匹配?
+#==10-amdgpu.conf
+# Section "OutputClass"
+# 	Identifier "AMDgpu"
+# 	MatchDriver "amdgpu"
+# 	Driver "amdgpu"
 # EndSection
 
 # sam @ debian in /usr/share/X11/xorg.conf.d |10:54:24  
