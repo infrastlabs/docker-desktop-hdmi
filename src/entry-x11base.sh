@@ -1,16 +1,27 @@
 #!/bin/bash
 
-test -z "$VNC_OFFSET" && export VNC_OFFSET=10
+# test -z "$VNC_OFFSET" && export VNC_OFFSET=10
+# # if PORT_XXX not set, quick set mode
+# if [ $VNC_OFFSET -gt 10 ] && [ "$VNC_OFFSET" -lt 66 ]; then
+#     test -z "$PORT_SSH" && export PORT_SSH=$(($VNC_OFFSET*1000+22))
+#     test -z "$PORT_RDP" && export PORT_RDP=$(($VNC_OFFSET*1000+89))
+#     test -z "$PORT_VNC" && export PORT_VNC=$(($VNC_OFFSET*1000+81))
+#     echo "entry.sh: VNC_OFFSET=$VNC_OFFSET, quick set PORT_SSH=$PORT_SSH, PORT_RDP=$PORT_RDP, PORT_VNC=$PORT_VNC"
+# fi
+
+test -z "$DISPLAY" && export DISPLAY=:1
+dispNum=${DISPLAY#*:}; dispNum=${dispNum%.*}
 # if PORT_XXX not set, quick set mode
-if [ $VNC_OFFSET -gt 10 ] && [ "$VNC_OFFSET" -lt 66 ]; then
-    test -z "$PORT_SSH" && export PORT_SSH=$(($VNC_OFFSET*1000+22))
-    test -z "$PORT_RDP" && export PORT_RDP=$(($VNC_OFFSET*1000+89))
-    test -z "$PORT_VNC" && export PORT_VNC=$(($VNC_OFFSET*1000+81))
-    echo "entry.sh: VNC_OFFSET=$VNC_OFFSET, quick set PORT_SSH=$PORT_SSH, PORT_RDP=$PORT_RDP, PORT_VNC=$PORT_VNC"
+if [ $dispNum -gt 0 ] && [ "$dispNum" -lt 7 ]; then
+    test -z "$PORT_SSH" && export PORT_SSH=$((50000+$dispNum*1000+22))
+    test -z "$PORT_RDP" && export PORT_RDP=$((50000+$dispNum*1000+89))
+    test -z "$PORT_VNC" && export PORT_VNC=$((50000+$dispNum*1000+81))
 fi
+
 test -z "$PORT_SSH" && export PORT_SSH=10022
 test -z "$PORT_RDP" && export PORT_RDP=10089
 test -z "$PORT_VNC" && export PORT_VNC=10081
+echo "entry.sh: DISPLAY=$DISPLAY, quick set PORT_SSH=$PORT_SSH, PORT_RDP=$PORT_RDP, PORT_VNC=$PORT_VNC"
 # 
 test -z "$SSH_PASS" && export SSH_PASS=headless
 test -z "$VNC_PASS" && export VNC_PASS=headless
@@ -42,20 +53,27 @@ function oneVnc(){
     local xn="x$N"
 
     # PERP: 
+    #   ref2: fk-docker-libvirtd//build/entry-prex11.sh  -->exec bash /entry.sh #执行x11base的/entry.sh
     envcmd="export DISPLAY=:$N; export HOME=/home/$user1" #DISPLAY=:$N,HOME=/home/$user1$env_dbus
     #  de: USER=headless,SHELL=/bin/bash,TERM=xterm,LANG=$L.UTF-8,LANGUAGE=$L:en$env_dbus
     decmd="export USER=headless; export SHELL=/bin/bash; export TERM=xterm"
     #  parec: PORT_VNC=$PORT_VNC$env_dbus
     # xvnc,chansrv
-    dest=/etc/perp/$xn-xvnc; mkdir -p $dest/
-    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc.sh xvnc $N\"^g" > $dest/rc.main
+    # dest=/etc/perp/$xn-xvnc; mkdir -p $dest/
+    # cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh xvnc $N\"^g" > $dest/rc.main
+    dest=/etc/perp/$xn-org; mkdir -p $dest/
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"exec /xvnc2.sh xorg $N\"^g" > $dest/rc.main
+    dest=/etc/perp/$xn-x11vnc; mkdir -p $dest/
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"exec /xvnc2.sh x11vnc $N\"^g" > $dest/rc.main
     dest=/etc/perp/$xn-chansrv; mkdir -p $dest
-    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc.sh chansrv $N\"^g" > $dest/rc.main
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh chansrv $N\"^g" > $dest/rc.main
     # pulse,parec
     dest=/etc/perp/$xn-pulse; mkdir -p $dest
-    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc.sh pulse $N\"^g" > $dest/rc.main
-    dest=/etc/perp/$xn-parec; mkdir -p $dest
-    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc.sh parec $N\"^g" > $dest/rc.main
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh pulse $N\"^g" > $dest/rc.main
+    # dest=/etc/perp/$xn-parec; mkdir -p $dest
+    # cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc.sh parec $N\"^g" > $dest/rc.main
+    dest=/etc/perp/$xn-dbus; mkdir -p $dest
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh dbus $N\"^g" > $dest/rc.main
     # 
     # de: gosu headless bash -c "xxx"
     dest=/etc/perp/$xn-de; mkdir -p $dest
@@ -100,14 +118,15 @@ function setXserver(){
     #tpl replace: each revert clean;
     cat /etc/xrdp/xrdp.ini.tpl > /etc/xrdp/xrdp.ini
     cat /etc/novnc/index.html > /usr/local/webhookd/static/index.html
-    # /xvnc.sh pulse X; oneVnc: xrdp,novnc sed_add_tmpfile
+    # /xvnc2.sh pulse X; oneVnc: xrdp,novnc sed_add_tmpfile
     # busybox: chown headless:headless > chmod 777
     tmpDir=/tmp/.headless; mkdir -p $tmpDir && chmod 777 -R $tmpDir ; #pulse: default-xx.pa
 
     # setPorts; sed port=.* || env_ctReset
-    sed -i "s^port=3389^port=$PORT_RDP^g" /etc/xrdp/xrdp.ini
-    sed -i "s/EFRp 22$/EFRp $PORT_SSH/g" /etc/perp/ssh/rc.main #perp
-    sed -i "3a\PORT_VNC=$PORT_VNC" /usr/local/webhookd/run.sh #+
+    sed -i "s/port=ask5900/ port=ask5900/g" /etc/xrdp/xrdp.ini #avoid the botom sed
+    sed -i "s/^port=.*/port=$PORT_RDP/g" /etc/xrdp/xrdp.ini #[Globals].port=3389
+    sed -i "s/EFRp .*/EFRp $PORT_SSH/g" /etc/perp/ssh/rc.main #perp
+    sed -i "3a\PORT_VNC=$PORT_VNC" /usr/local/webhookd/run.sh #+ ##todo: if -z, add
     # run.sh line4: PORT_VNC=${PORT_VNC:-10091}; echo "PORT_VNC: $PORT_VNC"
 
     # sesman
@@ -116,7 +135,7 @@ function setXserver(){
     sed -i "s/ListenPort=3350/ListenPort=${SES_PORT}/g" /etc/xrdp/sesman.ini
 
     # xvnc0-de
-    port0=$(expr 0 + $VNC_OFFSET) #vnc: 5900+10
+    port0=$(expr 0 + $dispNum) #vnc: 5900+10; VNC_OFFSET>dispNum
     oneVnc "$port0" "headless" #sv
     
     # clearPass: if not default
@@ -131,6 +150,23 @@ function setXserver(){
         echo -e "$VNC_PASS\n$VNC_PASS\ny\n$VNC_PASS_RO\n$VNC_PASS_RO"  |vncpasswd /etc/xrdp/vnc_pass > /dev/null 2>&1;
         chmod 644 /etc/xrdp/vnc_pass
         # echo "" #newLine
+
+      # USERMOD
+      # cat /etc/group |egrep "sudo|tty|video|input|audio|pulse" ##all-existed
+      # adduser USER GROUP
+      # adduser $u1 sudo
+      # adduser $u1 tty
+      # adduser $u1 video
+      # addgroup input; adduser $u1 input  
+      # usermod -a -G audio $u1
+      # usermod -a -G pulse $u1
+      # usermod -a -G pulse-access $u1
+      u1=headless
+      vals=$(echo "sudo|tty|video|input|audio|pulse" |sed "s/|/ /g"); arr=($vals)
+      for one in "${arr[@]}"; do
+          echo "usermod -a -G $one"; usermod -a -G $one $u1
+      done
+      groups $u1 #view  
     fi
     unset SSH_PASS VNC_PASS VNC_PASS_RO #unset, not show in desktopEnv.
     unset LOC_XFCE LOC_APPS LOC_APPS2 DEBIAN_FRONTEND LOCALE_INCLUDE 
@@ -159,7 +195,7 @@ test -z "$DBUS_SESSION_BUS_ADDRESS" || env_dbus=",DBUS_SESSION_BUS_ADDRESS=\"$DB
 # Dump environment variables
 # https://hub.fastgit.org/hectorm/docker-xubuntu/blob/master/scripts/bin/container-init
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-export DISPLAY=:$VNC_OFFSET
+# export DISPLAY=:$VNC_OFFSET #dcp.env
 if [ ! -z "$L" ]; then #export LANG,LANGUAGE
     charset=${L##*.}; test "$charset" == "$L" && charset="UTF-8" || echo "charset: $charset"
     lang_area=${L%%.*}
@@ -199,7 +235,10 @@ echo "export QT_IM_MODULE=ibus" |$sudo tee -a /etc/profile;
 
 # setlocale: bin/setlocale
 lock=/.1stinit.lock
-setXserver
+setXserver #set PASS, if non-lock
+# deb9/ubt24, init with errWarning 
+#   /usr/share/i18n/locales/translit_emojis:[18..87]: LC_CTYPE: syntax error
+# rm -f /usr/share/i18n/locales/translit_emojis #==> drop: cause ubt-locale-fail, non-zh
 test -f "$lock" && echo "[locale] none-first, skip." || setlocale #locale只首次设定(arm下单核cpu占满, 切换-e L=zh_HK时容器重置)
 touch $lock
 
@@ -207,6 +246,7 @@ touch $lock
 test -f /home/headless/.ICEauthority && chmod 644 /home/headless/.ICEauthority #mate err
 rm -f /home/headless/.config/autostart/pulseaudio.desktop
 # chmod +x /usr/share/applications/*.desktop ##fluxbox> pcmanfm> exec-dialog
+touch /home/headless/.config/clipit/disabled #ubt22, avoid first-notify
 
 cnt=0.1
 echo "sleep $cnt" && sleep $cnt;
@@ -271,4 +311,5 @@ export PERP_BASE=/etc/perp; dst=/var/log/tinylog/_perp; mkdir -p $dst
 # exec perpd > >(exec tinylog -k2 -s1000 -z $dst) 2>&1
 
 # exec /usr/sbin/tini -- perpd #avoid defunc-process
-exec /usr/sbin/tini -- perpd > >(exec tinylog -k2 -s1000 -z $dst) 2>&1 
+# gzip -V > /dev/null && z="-z" #deb9:有gzip,tinylog调用也出错
+exec /usr/sbin/tini -- perpd > >(exec tinylog -k2 -s1000 $z $dst) 2>&1 
