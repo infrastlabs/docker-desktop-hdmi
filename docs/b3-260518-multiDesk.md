@@ -13,8 +13,14 @@
   - debian9-k4.9-xorg1.19(7.7) `touchPad:inputDevice.synaptics`
   - ubuntu20-k5.4-xorg1.20(7.7) `touchPad:inputDevice.synaptics[ubt20/22/24]`
 - sys-glibc https://distrowatch.com/table.php?distribution=ubuntu #ubuntu/debian
-  - ubt26-2.43|ubt24-2.39|ubt22-2.35|ubt20-2.31|ubt18-2.27|ubt16-2.23|ubt14-2.19|`ubt12-2.15|ubt10-2.11@2010|ubt8-2.7|ubt6-2.3@2006`
-  - deb13-2.41|deb12-2.36|deb11-2.31|deb10-2.28|deb9-2.24|deb8-2.19@2015|deb7-2.13@2013`|deb6-2.11@2011|deb5-2.7@2009|deb4-2.3@2007|deb3-2.2@2002|deb2-2.0@1998`
+  - ubt26-2.43|ubt24-2.39|**ubt22-2.35|ubt20-2.31|ubt18-2.27**|ubt16-2.23|ubt14-2.19|`ubt12-2.15|ubt10-2.11@2010|ubt8-2.7|ubt6-2.3@2006`
+  - deb13-2.41|**deb12-2.36|deb11-2.31|deb10-2.28**|deb9-2.24|deb8-2.19@2015|deb7-2.13@2013`|deb6-2.11@2011|deb5-2.7@2009|deb4-2.3@2007|deb3-2.2@2002|deb2-2.0@1998`
+  - vers
+    - node24|2.28+
+    - opencode-1.15.10|2.17+ `strings /_ext/opencode |grep GLIBC_ |sort -V`
+    - ubt18-2.27/deb10-2.28
+    - ubt20-2.31/deb11-2.31
+    - ubt22-2.35/deb12-2.36
 
 ```bash
 # insDocker.sh升级Docker: deb9-apt-docker-ce17.12不能下载到docker-hdmi-desktop相关tag镜像, 升级docker-20.10.24后可以
@@ -64,6 +70,142 @@
   1.容器内基于lightdm做桌面加载
   2.xfce4-power-manager|容器内电源管理(0519-try1:启动无tray图标)
   3.network-manager|网络连接<cur:deb9-bunsen桌面控制的wifi连接; TODO:配置写死/nmcli操作>(network-manager安装,同上1条:都依赖dbus) `/entry.sh add: dbus-daemon --system --nofork &`
+
+```
+
+### 0529周五|x11vnc验证
+
+> 0529上午, entry更名entrypoint2; 新加entry-x11base.sh<Xorg+ssh/xrdp/noVnc的结合>
+
+- 下午|intel.weipai-s11, x11vnc调试
+
+```bash
+# 昨晚/今早?: genMachine_headless_dev环境下,手动下载运行x11dev: win10_vncviewer可显可控;
+# 15:50|黑屏验证: /_ext/x11vnc从deb9内拷贝,手动运行
+#  0.中午1:30(还未休)：noVnc_52081黑屏/鼠标可控; deb9_bunsen_remmina_5902一样情况
+#  1.deb9-bunsen环境跑: 可显
+#  2.ct-hdmi-xorg: deb9/ubt22黑屏; xhost +;再启x11vnc也黑屏
+#  3.ct-hdmi-Xvnc: ubt22> x11vnc-5903可显可控(有ibus-rime?)
+# 
+
+# ubt22-xorg.TODO: xorg-scrap组件??|x0vncserver也黑屏
+  # ubt-x0vncserver
+    apt install tigervnc-standalone-server
+    apt install tigervnc-scraping-server #x0vncserver 
+    x0vncserver -rfbport 5903 #启动需设定6位密码, remmina_5902按密码连接后也黑屏;(ps -ef; perl脚本>X0tigervnc)
+    # 01: x0vncserver.headless跑> 换root下跑:也是黑屏
+    # 02: apt install x11vnc; 用安装版(跑5902端口,/_ext/arg1.txt全参数), 也是黑屏
+      x11vnc -display :2 -rfbport 5902 -forever -loop -noxdamage -repeat -shared -capslock -nomodtweak
+
+  # oe2203|ref jdus-arch-draft/2026/05-0202-x11vnc-build.md
+    35  dnf install tigervnc-server #装它才有;内带x0vncserver
+    # https://cloud.tencent.com/developer/article/1860273
+    vncpasswd  vnc.pass.file
+    x0vncserver -PasswordFile=./vnc.pass.file -AlwaysShared=on -AcceptPointerEvents=off -AcceptKeyEvents=off
+    x0vncserver -PasswordFile=./vnc.pass.file -AlwaysShared=on ##启用kb,mouse; vncviewer键鼠ok; xrdp键鼠也ok
+
+
+```
+
+- 晚上|amd.genMachine, x11vnc调试
+
+```bash
+# 20:35, 11.07:dbg01
+  # 1. x11vnc|noVNC可显, xrdp暂不行; (glxinfo显示vendor:AMD, 但明细还是纯Mesa信息) ==>0530.9:20|x11vnc-shared免独占
+    # xrdp暂不行:细看无log，TODO.apt安装与static版做对比(关novnc,ubt_dev4可连,免独占即可);
+  # 2. vid|换xfce4-session可动态改分辨率(openbox-session.TODO: dbus?)==>dseek:是这样,TODO.deb9-bunsen的实现; ==> 运行xfsettingsd即可
+  # 3. aud|TODO: pulseaudio/pavucontrol未就绪, pactl操作connReject(相比static静编版,sock路径?) ==> fix:#-n取默认即出Dummy; device=plughw:0,3(现在hdmi屏:aplay-l无音频?=>0530.9:20|加用户组:usermod -a -G audio $u1)
+  # 4. lang|xfce4下不显示中文==> fix:entry-x11base内不要删emoji文件
+  # 5. ibus|ubt22二次进入后，中文wubi/pinyin可直接用==> fix:上1条fix后,ubt22首进直接zh可用的;
+
+```
+
+### 0531周日|
+
+- ct-hdmi-TODO|0531-16:40
+  - powerManager:~~点击管理器>运行实例后，可托盘设定@genM~~
+  - lightdm
+    - 启动配置脚本/手动设定
+    - 在已有Xorg环境下运行
+  - sysd-udev
+    - ~~pulseaudio设备自动探测/免手动指定~~
+    - networkManager接管wifi特定网卡设备: ~~轻量net管理工具~~, dcp.多卡先行验证
+  - vid/aud `amd.ok, intel.TODO黑屏/驱动与内核需对应`
+    - ~~0601上午|intel.apt34: x11vnc可显~~
+    - Xorg.Dummy_xvnc + 物理屏幕Mirror/即插即显
+    - aud本地播放/xrdp-sink + parec
+  - input:kb/mouse
+    - gMachine盒子:~~x11vnc远程操作免键鼠~~
+    - wepaiS11本子:本地kb/touch,~~udev_id_path匹配~~
+
+```bash
+# ff.dseek"Shell let加法用法": 
+  # 00.tini-perpd
+  #   nitro vs perpd; (nitro无日志管理/dep依赖弱 + s6组合)
+  #   runit.svlogd vs perpd.tinylog
+  # 01.sysd-netd默认/netManager默认未装
+  #   netplay[yaml] + systemd-networkd(/etc/systemd/network/xx.network)/NetworkManger(nmcli/nmtui)
+  # 02.deps:dbus/polkit/udev
+  #   system-dbus(netMgr,sysd,udev) vs session-dbus
+  #   dbus[ubt1204开始集成]/polkit[已装未激活]/udev[已装+激活]
+# 0601  8:10|intel.apt34: x11vnc可显
+# 0601  9:00|distroRef: peppermint,antix,puppy
+# 0601 10:10|udev
+  mkdir -p /run/udev #无时/etc/init.d/udev脚本有检测
+  service udev start #调用/lib/systemd/systemd-udevd
+  # 1.之后sv restart x1-pulse; pulse可自动检测到可用的HDMI_Input/Output
+
+# udev:
+  /usr/lib/systemd/systemd-udevd #/lib -> /usr/lib
+  /etc/init.d/udev
+  /run/udev
+
+# pulse
+  启了udev后，直接可激活可和的音频口 
+  pavucontrol最后页:有配置项列表了
+  # 注: service udev start方可; xvnc2.sh当前直接启systemd-udevd方式暂还不行;
+
+# 0601 22:45|netManager
+  1.启动:之前宿主机网首启OK，之后试改bridge网则不行了:ret1/无errLog ==>需启了dbus才可启(rm -f /run/dbus/pid)
+  2.管理UI: 
+    nm前端: nm-applet<network-manager-gnome:40M+>, nm-tray.qt.lite<编辑:xterm.nmtui-edit>; 
+    connman+cmst: connmand/connmanctl + wpasupplicant.wifi; 2.6M.lite;
+    wicd: wicd.py2.ubt16/18才有(独立后端:wicd-daemon,无nm依赖); 
+
+# 0602 9:30|weipai_s11-x11vnc-try2
+  0.新img-ctRecreate还是黑屏
+  1.机器重启,关lightdm,启tty9:本地firefox-115esr:可查看到vnc界面<img.loop>
+  2.启lightdm到tty7,firefox-128esr:还是黑屏,倒回tty9:vnc还可看到
+  3.同机查看影响?:换手机远程ip:52081,查看也是黑屏
+  # power|xf-power-manager启实例/显trayIcon:可正常显示图标,调亮度:无反应/console有warn;
+  # xfsettingsd|已跑; deb9-bunsen:无xf-display-manager/xfsettingsd;
+  # udev|service udev start后; 不用sv restart x2-pulse;自动可寻得新out/in设备;
+  # x11vnc|ap34.deb950()>s11.deb920(4.9.0-4-amd64)内核差异?(否): TODO.ali-archive-repo升级内核:sudo apt install linux-image*amd64
+    linux-image-4.9.0-19-amd64
+    linux-image-4.19.0-0.bpo.19-amd64
+
+# 0603 8:57|xorg-tty9非激活时,xorg休眠/x11vnc黑屏; ref src/xvnc2.sh
+    exec x11vnc -display :$offsetLimitIndex -rfbport $port1 -rfbauth /etc/xrdp/vnc_pass -forever -shared -capslock   -nomodtweak -noxdamage  -noshm  -noxrecord
+    # x11vnc -display :32 -forever
+    # x11vnc -forever -loop -repeat -shared -capslock -nomodtweak -noxdamage -rfbport 5900
+    # x11vnc -forever -loop -repeat -shared -capslock -nomodtweak -noxdamage -rfbport 5900 -auth guess -rfbauth ~/.vnc/passwd
+      # blackScreen tty-switchd, dseek: -noxrecord[加与不加:手机ip:52081查看,tty9激活时可看屏/出tty9则都黑屏]; -rawfb /dev/fb0 [always black]
+
+  # 9:30|alpine
+    3.13-xorg1.20.11: 切换到tty9时会crash(导致tty7.lightdmSession也重置),手动Xorg :2 vt9效果一样
+    3.14
+    3.19-xorg1.21.1.16: Xorg启正常; kb可用/mouse暂不行;
+  # 16:25@genM@home
+    1. ubt20: xorg-err /usr/lib/dri/radeonsi_dri.so找不到
+    2. alpine313/314: xorg-err Error loading shared library libEGL.so.1: No such file [apk add mesa-egl]; 316/319/323已带mesa-egl
+    # alpine313.无sakura,其它OK; DO:alpine.musl-locale.zh_CN??=>从deb/ubt拷贝/usr/share/locale即可
+    # eudev启动, pulse还不可用; TODO.拷贝ubt.pulse的udev规则
+
+# 0604 11:43|ubt-vers细化
+  1. ubt24-big 1.7g+; pkg.800+(ubt22:600+)
+  2. ubt20/22/24: net-mgr-gnome带入整个gnome桌面依赖; ubt20.ibus-rime.err(ubt22.ok)
+  3. ubt18:上1条不会; ibus-rime.ok; ubt22.nm-applet就绪(ubt18/20未就绪conning)
+  4. deb11: xfce-4.16?; net-mgr-gnome不会带入整个依赖
 
 ```
 
