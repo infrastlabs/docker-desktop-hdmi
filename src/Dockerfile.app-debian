@@ -39,6 +39,11 @@ RUN apt.sh \
   xserver-xorg-input-libinput xserver-xorg-input-synaptics \
   network-manager xfce4-power-manager
 
+RUN apt.sh \
+  # 260529:glxinfo @mesa-utils
+  mesa-utils \
+  # 260529:weipai-s11--intel.i915(xserver-xorg-video-intel, all内不含)
+  xserver-xorg-video-intel 
 
 # # deb8-none: alsa-ucm-conf; left:47.8M
 #   xserver-xorg pulseaudio \
