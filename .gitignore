@@ -7,5 +7,7 @@
 
 *.vswp
 #*.docx
+/.env
+
 # ./src/bin=> /usr/local/bin
 /src/bin/opencode
