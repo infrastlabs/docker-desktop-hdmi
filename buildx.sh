@@ -97,11 +97,11 @@ x11base-all)
     # 
     # doBuildx core-debian-7 src/Dockerfile.app-debian & #err
     # doBuildx core-debian-8 src/Dockerfile.app-debian &
-    # doBuildx core-debian-9 src/Dockerfile.app-debian &
-    doBuildx core-debian-10 src/Dockerfile.app-debian &
+    doBuildx core-debian-9 src/Dockerfile.app-debian &
+    # doBuildx core-debian-10 src/Dockerfile.app-debian &
     # doBuildx core-debian-11 src/Dockerfile.app-debian &
-    doBuildx core-debian-12 src/Dockerfile.app-debian &
-    doBuildx core-debian-13 src/Dockerfile.app-debian &
+    # doBuildx core-debian-12 src/Dockerfile.app-debian &
+    # doBuildx core-debian-13 src/Dockerfile.app-debian &
     wait
     ;;    
 *)
