@@ -22,6 +22,11 @@ RUN \
   alsa-ucm-conf kbd \
   # 260519:add
   less bash-completion tumbler \
+  # 260529:glxinfo @mesa-utils
+  mesa-utils \
+  # 260529:weipai-s11--intel.i915(xserver-xorg-video-intel, all内不含)
+  xserver-xorg-video-intel \
+  \
   # for: weipai-s11's touchpad; evtest /dev/input/event7 操作touch板即有反应
   xinput evtest \
   xserver-xorg-input-libinput xserver-xorg-input-synaptics \
