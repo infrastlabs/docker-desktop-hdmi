@@ -76,7 +76,7 @@ function x11baseAlter(){
 if [ -d "/home/headless" ]; then
   if [ "" == "$1" ]; then
     x11baseAlter
-    su - headless -c "bash /entry.sh skip-loop-call"
+    su - headless -c "bash /entrypoint2.sh skip-loop-call"
     exit 0
   fi
 fi
