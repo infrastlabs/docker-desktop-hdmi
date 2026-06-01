@@ -67,13 +67,19 @@ function oneVnc(){
     cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"exec /xvnc2.sh x11vnc $N\"^g" > $dest/rc.main
     dest=/etc/perp/$xn-chansrv; mkdir -p $dest
     cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh chansrv $N\"^g" > $dest/rc.main
+    # dbus,udev
+    dest=/etc/perp/$xn-dbus; mkdir -p $dest
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh dbus $N\"^g" > $dest/rc.main
+    dest=/etc/perp/$xn-udev; mkdir -p $dest
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh udev $N\"^g" > $dest/rc.main
     # pulse,parec
     dest=/etc/perp/$xn-pulse; mkdir -p $dest
     cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh pulse $N\"^g" > $dest/rc.main
     # dest=/etc/perp/$xn-parec; mkdir -p $dest
     # cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc.sh parec $N\"^g" > $dest/rc.main
-    dest=/etc/perp/$xn-dbus; mkdir -p $dest
-    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh dbus $N\"^g" > $dest/rc.main
+    # nm
+    dest=/etc/perp/$xn-nm; mkdir -p $dest
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh nm $N\"^g" > $dest/rc.main
     # 
     # de: gosu headless bash -c "xxx"
     dest=/etc/perp/$xn-de; mkdir -p $dest
@@ -246,7 +252,22 @@ touch $lock
 test -f /home/headless/.ICEauthority && chmod 644 /home/headless/.ICEauthority #mate err
 rm -f /home/headless/.config/autostart/pulseaudio.desktop
 # chmod +x /usr/share/applications/*.desktop ##fluxbox> pcmanfm> exec-dialog
+# ct-hdmi-add01
 touch /home/headless/.config/clipit/disabled #ubt22, avoid first-notify
+dst=/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf; test -s $dst && mv $dst ${dst}-ex
+econf=/etc/NetworkManager/conf.d; mkdir -p $econf
+cat > $econf/10-globally-managed-devices.conf <<EOF
+[main]
+auth-polkit=false
+
+[keyfile]
+unmanaged-devices=*,except:interface-name:eth1,except:interface-name:eth2,except:type:wifi,except:type:gsm,except:type:cdma
+
+[device-eth1]
+managed=true
+[device-eth2]
+managed=true
+EOF
 
 cnt=0.1
 echo "sleep $cnt" && sleep $cnt;
