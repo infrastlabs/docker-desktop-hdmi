@@ -34,3 +34,20 @@ RUN \
   # alsa-oss alsa-tools-gui alsamixergui \
   alsa-tools alsa-utils mpg123 ; \
   echo "curl mp3.." && su - headless -c "curl --connect-timeout 3 -k -O -fSL https://downsc.chinaz.net/files/download/sound1/201309/3476.mp3";
+
+  RUN \
+    apt.sh \
+    # 40M+: nm-applet
+    network-manager-gnome \
+    # nmsurf:rofi; nmrs;
+    rofi  nm-tray xterm \
+    # connman cmst \
+    jgmenu; \
+    \
+    # DO dotfiles/refresh.sh
+    cd /usr/local/static/.dotfiles/; \
+    git fetch; git reset --hard origin/master; \
+    bash refresh.sh; \
+    exit 0
+  
+  
