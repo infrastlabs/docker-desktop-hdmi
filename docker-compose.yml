@@ -1,4 +1,20 @@
 version: "2.4"
+networks:
+  network1:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: "10.18.1.0/24"
+  network2:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: "10.18.2.0/24"
+  network3:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: "10.18.3.0/24"
 services:
   desktop:
     # image: hilschernetpi/netpi-desktop-hdmi
@@ -11,13 +27,25 @@ services:
     # entrypoint: bash /entrypoint2.sh
     # entrypoint: bash -c
     # command: "\"echo wait...; tail -f /dev/null;\"" 
-    # hostname: deb1013
-    # restart: always
+    hostname: hdmi-desktop
+    restart: none #unless-stopped always
     privileged: true
-    network_mode: host
-    # ports:
-    #   - 20022:22
-    #   - 25900:5900
+    # network_mode: bridge #host
+    networks:
+      - network1
+      - network2
+      - network3
+      # network1:
+      #   interface_name: eth01 #eth0; docker-ce:v28.1+
+      # network2:
+      #   interface_name: eth02
+      # network3:
+      #   interface_name: eth03
+    ports:
+      - 51022:51022
+      - 51081:51081
+      - 52022:52022
+      - 52081:52081
     devices:
       - "/dev:/dev"
       # - "/dev/tty0:/dev/tty0"
@@ -37,6 +65,7 @@ services:
       # - "SSHPORT=22" #/src/entrypoint.sh
       # - "BUSID=pci0:04:0:0:"
       # 
+      - HOME=/_ext/home/headless
       - DISPLAY=${ENV_DISPLAY:-:1} #加ENV_,免优先取了环境变量而非.env内配置
       # - VNC_OFFSET=51
       - START_SESSION=${ENV_DESK:-openbox-session}
