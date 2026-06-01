@@ -21,10 +21,11 @@ x11vnc)
 
     # /etc/xrdp/vnc_pass; VNC_PASS_RO:x11vnc non-support?
     port1=$(expr 5900 + $offsetLimitIndex)
-    exec x11vnc -display :$offsetLimitIndex -rfbport $port1 -rfbauth /etc/xrdp/vnc_pass -forever -shared -capslock
+    exec x11vnc -display :$offsetLimitIndex -rfbport $port1 -rfbauth /etc/xrdp/vnc_pass -forever -shared -capslock   -nomodtweak -noxdamage  -noshm  -noxrecord
     # x11vnc -display :32 -forever
     # x11vnc -forever -loop -repeat -shared -capslock -nomodtweak -noxdamage -rfbport 5900
     # x11vnc -forever -loop -repeat -shared -capslock -nomodtweak -noxdamage -rfbport 5900 -auth guess -rfbauth ~/.vnc/passwd
+      # blackScreen tty-switchd, dseek: -noxrecord[加与不加:手机ip:52081查看,tty9激活时可看屏/出tty9则都黑屏]; -rawfb /dev/fb0 [always black]
     ;;
 chansrv)
     export DISPLAY=:$offsetLimitIndex #:2
@@ -35,7 +36,14 @@ pulse)
     # mkdir -p /tmp/.headless; pa="/tmp/.headless/pulse-$port.pa"
     # cat /etc/pulse/default.pa > $pa; sed -i "s/4700/$port/g" $pa
     # exec pulseaudio --exit-idle-time=-1 -nF $pa
-    
+    #udev: ref docs/data/etc_initd_udev
+    sleep 1
+    sudo udevadm info --cleanup-db
+    sudo udevadm trigger --type=subsystems --action=add
+    sudo udevadm trigger --type=devices --action=add
+    sudo udevadm settle
+    # sudo udevadm control --reload-rules
+
     sudo sed -i "s/^load-module module-console-kit/#load-module module-console-kit/g" /etc/pulse/default.pa #for: core-debian-9
     sudo rm -rf /tmp/pulse-*
     # echo "load-module module-alsa-sink device=plughw:0,3" |sudo tee /etc/pulse/default.pa
@@ -54,10 +62,26 @@ pulse)
 dbus)
     sudo mkdir -p /var/run/dbus/
     export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
+    sudo rm -f /run/dbus/pid
     sudo dbus-daemon --system --nofork
     # sleep 2
     # xfce4-power-manager &
     # NetworkManager &
+    ;;
+udev)
+    # udev: for pulseaudio, NetworkManager
+    sudo mkdir -p /run/udev
+    sudo rm -rf /run/udev/control #sock?
+    sudev=/lib/systemd/systemd-udevd
+    test -s $sudev && sudo $sudev #--daemon; ##ubt18非软链:/usr/lib> /lib
+    # eudev@alpine
+    sudo /sbin/udevd #--daemon 
+    # dpkg -l |grep systemd #cnt4, same with ap34-deb9-host
+    # find /run/udev -type f |wc #cnt445
+    # udevadm trigger
+    ;;
+nm)
+    sudo NetworkManager --no-daemon
     ;;
 *)
     echo "please call with: xvnc.sh xvnc/chansrv/pulse/parec xx"
