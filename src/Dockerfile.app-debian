@@ -35,6 +35,7 @@ RUN apt.sh \
     sakura geany ristretto gnome-system-monitor plank engrampa \
     x11-xserver-utils scrot git mousepad \
     pavucontrol ibus ibus-gtk ibus-gtk3 ibus-rime librime-data-wubi \
+  \
   kbd less bash-completion tumbler xinput evtest \
   xserver-xorg-input-libinput xserver-xorg-input-synaptics \
   network-manager xfce4-power-manager
@@ -43,7 +44,19 @@ RUN apt.sh \
   # 260529:glxinfo @mesa-utils
   mesa-utils \
   # 260529:weipai-s11--intel.i915(xserver-xorg-video-intel, all内不含)
-  xserver-xorg-video-intel 
+  xserver-xorg-video-intel \
+  # 40M+: nm-applet; deb9.none:nm-tray 
+  network-manager-gnome \
+  rofi  xterm; \
+  exit 0
+
+RUN \
+  # DO dotfiles/refresh.sh
+  cd /usr/local/static/.dotfiles/; \
+  git config --global --add safe.directory /usr/local/static/.dotfiles; \
+  git fetch; git reset --hard origin/master; \
+  bash refresh.sh; \
+  exit 0
 
 # # deb8-none: alsa-ucm-conf; left:47.8M
 #   xserver-xorg pulseaudio \
