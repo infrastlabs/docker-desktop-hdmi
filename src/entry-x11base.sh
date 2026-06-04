@@ -49,12 +49,31 @@ function oneVnc(){
         user1=headless #xvnc$N
     fi
 
+    dst=/home/headless/.config/autostart/setxkbmap.desktop
+    mkdir -p ${dst%/*}; touch $dst
+    chmod +x $dst; chown headless:headless $dst
+    echo """
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=setxkbmap
+Comment=
+Exec=setxkbmap -rules evdev -model pc105 -layout us
+;OnlyShowIn=XFCE;
+StartupNotify=false
+Terminal=false
+Hidden=false
+    """ |$sudo tee $dst > /dev/null 2>&1
+
     # SV: xvnc$N.conf
     local xn="x$N"
 
     # PERP: 
     #   ref2: fk-docker-libvirtd//build/entry-prex11.sh  -->exec bash /entry.sh #执行x11base的/entry.sh
-    envcmd="export DISPLAY=:$N; export HOME=/home/$user1" #DISPLAY=:$N,HOME=/home/$user1$env_dbus
+    test -z "$HOME" && HOME=/home/$user1 #dcp.env HOME=/_ext/home/headless
+    test "$HOME" != "/home/$user1" && rsync -avzhP --exclude=.cache --exclude=.npm /home/$user1 ${HOME%/*}
+    envcmd="export DISPLAY=:$N; export HOME=$HOME" #DISPLAY=:$N,HOME=/home/$user1$env_dbus
     #  de: USER=headless,SHELL=/bin/bash,TERM=xterm,LANG=$L.UTF-8,LANGUAGE=$L:en$env_dbus
     decmd="export USER=headless; export SHELL=/bin/bash; export TERM=xterm"
     #  parec: PORT_VNC=$PORT_VNC$env_dbus
@@ -85,7 +104,8 @@ function oneVnc(){
     dest=/etc/perp/$xn-de; mkdir -p $dest
     # exec startfluxbox > /dev/null 2>\&1
     # source /.env2; 
-    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; $decmd; env |grep -v PASS |sort; source /.env; sleep 1; exec \$START_SESSION\"^g" > $dest/rc.main
+    # kbcmd="setxkbmap -rules evdev -model pc105 -layout us -variant , ;" #dseek; ubt22-kbMap异常=> opbox/autostart
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; $decmd; env |grep -v PASS |sort; source /.env; $kbcmd sleep 1; exec \$START_SESSION\"^g" > $dest/rc.main
 
 
     # XRDP /etc/xrdp/xrdp.ini
@@ -252,6 +272,7 @@ touch $lock
 test -f /home/headless/.ICEauthority && chmod 644 /home/headless/.ICEauthority #mate err
 rm -f /home/headless/.config/autostart/pulseaudio.desktop
 # chmod +x /usr/share/applications/*.desktop ##fluxbox> pcmanfm> exec-dialog
+
 # ct-hdmi-add01
 touch /home/headless/.config/clipit/disabled #ubt22, avoid first-notify
 dst=/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf; test -s $dst && mv $dst ${dst}-ex
