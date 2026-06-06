@@ -31,10 +31,10 @@ services:
     restart: none #unless-stopped always
     privileged: true
     network_mode: host #bridge host
-    networks:
-      - network1
-      - network2
-      - network3
+    # networks:
+    #   - network1
+    #   - network2
+    #   - network3
       # network1:
       #   interface_name: eth01 #eth0; docker-ce:v28.1+
       # network2:
