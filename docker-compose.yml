@@ -30,7 +30,7 @@ services:
     hostname: hdmi-desktop
     restart: none #unless-stopped always
     privileged: true
-    # network_mode: bridge #host
+    network_mode: host #bridge host
     networks:
       - network1
       - network2
