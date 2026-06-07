@@ -72,7 +72,7 @@ Hidden=false
     # PERP: 
     #   ref2: fk-docker-libvirtd//build/entry-prex11.sh  -->exec bash /entry.sh #执行x11base的/entry.sh
     test -z "$HOME" && HOME=/home/$user1; mkdir -p $HOME #dcp.env HOME=/_ext/home/headless
-    test "$HOME" != "/home/$user1" && rsync -avzhP --exclude=.cache --exclude=.npm /home/$user1 ${HOME%/*}
+    test "$HOME" != "/home/$user1" && rsync -avzhP --ignore-existing --exclude=.cache --exclude=.npm /home/$user1 ${HOME%/*}
     test "$HOME" != "/home/$user1" && chown -R headless:headless $HOME
     envcmd="export DISPLAY=:$N; export HOME=$HOME" #DISPLAY=:$N,HOME=/home/$user1$env_dbus
     #  de: USER=headless,SHELL=/bin/bash,TERM=xterm,LANG=$L.UTF-8,LANGUAGE=$L:en$env_dbus
