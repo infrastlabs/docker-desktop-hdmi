@@ -100,6 +100,13 @@ Hidden=false
     # nm
     dest=/etc/perp/$xn-nm; mkdir -p $dest
     cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh nm $N\"^g" > $dest/rc.main
+
+    # opencode,cloudcli
+    dest=/etc/perp/$xn-opencode; mkdir -p $dest
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh opencode $N\"^g" > $dest/rc.main
+    dest=/etc/perp/$xn-cloudcli; mkdir -p $dest
+    cat /etc/perp/tpl-rc.main |sed "s^_CMD_^exec gosu headless bash -c \"$envcmd; exec /xvnc2.sh cloudcli $N\"^g" > $dest/rc.main
+
     # 
     # de: gosu headless bash -c "xxx"
     dest=/etc/perp/$xn-de; mkdir -p $dest
