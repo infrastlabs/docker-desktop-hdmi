@@ -80,6 +80,16 @@ udev)
     # find /run/udev -type f |wc #cnt445
     # udevadm trigger
     ;;
+opencode)
+    cd /_ext
+    bash oc_start.sh
+    ;;
+cloudcli)
+    sleep 1
+    cd /_ext/down/node-v20.19.5-linux-x64/bin
+    export PATH=$(pwd):$PATH
+    node cloudcli
+    ;;
 nm)
     sudo NetworkManager --no-daemon
     ;;
