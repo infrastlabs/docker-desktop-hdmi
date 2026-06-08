@@ -1,15 +1,16 @@
 
 ARG REPO=
-ARG VER=22.04
+# ARG VER=22.04
 FROM ${REPO}infrastlabs/x11-base:rootfs AS rootfs
 
 # TOOD origin-hub's sync to ${REPO}
-FROM registry.cn-shenzhen.aliyuncs.com/infrasync/v2025:library--ubuntu---${VER}
+FROM registry.cn-shenzhen.aliyuncs.com/infrasync/v2025:library--ubuntu---22.04
 ARG TARGETPLATFORM
 ARG TYPE=core
-ARG VER=22.04
+# ARG VER=22.04
 ENV \
   #env.bash for test "xx" == "yy"
+  VER=22.04 \
   SHELL=/bin/bash \
   DEBIAN_FRONTEND=noninteractive \
   LOCALE_INCLUDE="zh_CN zh_HK zh_TW en en_AU fr fr_CA pt pt_BR es ar cs de it ru nl tr is sv uk ja ko th vi"
