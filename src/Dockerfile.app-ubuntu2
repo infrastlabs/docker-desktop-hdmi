@@ -92,7 +92,7 @@ RUN test "app" != "$TYPE" && exit 0 || echo appInstall;\
   RUN test "app" != "$TYPE" && exit 0 || echo appInstall;\
     apt.sh \
     hicolor-icon-theme adwaita-icon-theme humanity-icon-theme; \
-    cd /usr/share/icons && rm -rf Humanity* ubuntu-mono* LoginIcons Tango; \
+    # cd /usr/share/icons && rm -rf Humanity* ubuntu-mono* LoginIcons Tango; \
     exit 0
 
 # ubt2404-drop: libasound2 
