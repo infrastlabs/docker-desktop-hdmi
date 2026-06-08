@@ -6,7 +6,7 @@ FROM ${REPO}infrastlabs/x11-base:rootfs AS rootfs
 # TOOD origin-hub's sync to ${REPO}
 FROM registry.cn-shenzhen.aliyuncs.com/infrasync/v2025:library--ubuntu---22.04
 ARG TARGETPLATFORM
-ARG TYPE=core
+ARG TYPE=app
 # ARG VER=22.04
 ENV \
   #env.bash for test "xx" == "yy"
