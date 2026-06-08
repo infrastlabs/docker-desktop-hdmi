@@ -83,6 +83,10 @@ hdmi)
     doBuildx latest src/Dockerfile
     ;;
 x11base-all)
+    doBuildx app-ubuntu2-22.04 src/Dockerfile.app-ubuntu2 &
+    wait 
+    exit 0
+
     doBuildx app-ubuntu-18.04 src/Dockerfile.app-ubuntu &
     doBuildx app-ubuntu-20.04 src/Dockerfile.app-ubuntu &
     doBuildx app-ubuntu-22.04 src/Dockerfile.app-ubuntu &
